@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://camel.apache.org/schema/blueprint https://camel.apache.org/schema/blueprint/camel-blueprint-2.23.3.xsd">
+    <cm:property-placeholder id="myblueprint.placeholder" persistent-id="camel.blueprint">
+        <cm:default-properties>
+            <cm:property name="patientIdsSourceUri" value="file:src/main/resources/data/inbound?noop=true&amp;fileName=patientIds.txt"/>
+            <cm:property name="httpUri" value="http://localhost:8081/patient/"/>
+            <cm:property name="amqQueue" value="activemq:queue:patientDetailsQueue"/>
+            <cm:property name="patientReportDetailsQueue" value="direct:getPatientReportDetails"/>
+            <cm:property name="allPatientsSqlQuery" value="sql:select * from Patients where patientId = :#id"/>
+            <cm:property name="restApiDataReceivedWireTapDirect" value="direct:RestApiDataReceived"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+    <bean
+        class="org.springframework.jdbc.datasource.DriverManagerDataSource" id="mysqlDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/camel_assgn3"/>
+        <property name="username" value="root"/>
+        <property name="password" value="root"/>
+    </bean>
+    <bean class="com.citiustech.routes.GetPatientReportDetailsRoute" id="getPatientReportDetailsRoute">
+        <property name="patientIdsSourceUri" value="${patientIdsSourceUri}"/>
+        <property name="httpUri" value="${httpUri}"/>
+        <property name="amqQueue" value="${amqQueue}"/>
+        <property name="restApiDataReceivedWireTapDirect" value="${restApiDataReceivedWireTapDirect}"/>
+    </bean>
+    <bean class="com.citiustech.routes.InboundRestRoute" id="inboundRestRoute">
+        <property name="patientReportDetailsQueue" value="${patientReportDetailsQueue}"/>
+        <property name="allPatientsSqlQuery" value="${allPatientsSqlQuery}"/>
+    </bean>
+    <camelContext id="inbound-context" xmlns="http://camel.apache.org/schema/blueprint">
+        <routeBuilder ref="getPatientReportDetailsRoute"/>
+        <routeBuilder ref="inboundRestRoute"/>
+    </camelContext>
+</blueprint>

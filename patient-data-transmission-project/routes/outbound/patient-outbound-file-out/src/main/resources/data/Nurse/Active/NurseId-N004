@@ -1,0 +1,6 @@
+<NurseDetail>
+  <nurseName>Nurse4</nurseName>
+  <nurseGender>Male</nurseGender>
+  <nurseId>N004</nurseId>
+  <nurseEmail>nurse4@example.com</nurseEmail>
+</NurseDetail>
