@@ -19,16 +19,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PatientTransformationRoute extends RouteBuilder {
 	
-	public String transformedJson;
 	public String patientDetailsQueue;
 	public String patientXlateTopic;
 
-	public String getTransformedJson() {
-		return transformedJson;
-	}
-	public void setTransformedJson(String transformedJson) {
-		this.transformedJson = transformedJson;
-	}
 	public String getPatientDetailsQueue() {
 		return patientDetailsQueue;
 	}
@@ -58,16 +51,6 @@ public class PatientTransformationRoute extends RouteBuilder {
 		.handled(true)
 		.log("Exception occurred: ${exception.message}");			
 		
-		//Transformation Route
-//		from(getPatientDetailsQueue())
-//		.log(LoggingLevel.INFO,"Patient Data received from ActiveMQ queue - ${body}")
-//		.unmarshal().json(JsonLibrary.Jackson)
-//		.log(LoggingLevel.INFO,"Patient Data is Transformed")
-//		.setBody(simple(getTransformedJson()))
-//		.log("${body}")
-//		.to(getPatientXlateTopic())
-//		.log(LoggingLevel.INFO,"Patient Data is sent to ActiveMQ topic");
-
 		from(getPatientDetailsQueue())
 		.log(LoggingLevel.INFO,"Patient Data received from ActiveMQ queue - ${body}")
 		.unmarshal().json(JsonLibrary.Jackson,Patient.class)

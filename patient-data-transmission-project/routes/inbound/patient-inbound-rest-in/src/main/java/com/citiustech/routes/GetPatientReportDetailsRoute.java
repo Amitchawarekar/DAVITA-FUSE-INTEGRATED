@@ -42,23 +42,23 @@ public class GetPatientReportDetailsRoute extends RouteBuilder {
 	@Override
     public void configure() throws Exception {
         
-//        // Defining Dead Letter Channel
-//        errorHandler(deadLetterChannel("activemq:queue:deadLetterQueue")
-//            .useOriginalMessage()
-//            .maximumRedeliveries(3)
-//            .redeliveryDelay(1000)
-//            .retryAttemptedLogLevel(LoggingLevel.WARN)
-//            .logExhaustedMessageHistory(true)
-//            .logExhaustedMessageBody(true)
-//            .logExhausted(true)
-//            .onExceptionOccurred(new Processor() {
-//                @Override
-//                public void process(Exchange exchange) throws Exception {
-//                    Exception cause = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
-//                    log.error("Message failed with exception: " + cause.getMessage(), cause);
-//                }
-//            })
-//        );
+        // Defining Dead Letter Channel
+        errorHandler(deadLetterChannel("activemq:queue:deadLetterQueue")
+            .useOriginalMessage()
+            .maximumRedeliveries(3)
+            .redeliveryDelay(1000)
+            .retryAttemptedLogLevel(LoggingLevel.WARN)
+            .logExhaustedMessageHistory(true)
+            .logExhaustedMessageBody(true)
+            .logExhausted(true)
+            .onExceptionOccurred(new Processor() {
+                @Override
+                public void process(Exchange exchange) throws Exception {
+                    Exception cause = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
+                    log.error("Message failed with exception: " + cause.getMessage(), cause);
+                }
+            })
+        );
 
         // Exception Handling
         onException(HttpOperationFailedException.class)
