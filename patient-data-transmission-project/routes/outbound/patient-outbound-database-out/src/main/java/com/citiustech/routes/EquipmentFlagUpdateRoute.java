@@ -62,9 +62,9 @@ public class EquipmentFlagUpdateRoute  extends RouteBuilder{
 			
 		//Getting data from ActiveMQ topic
 		from(getPatientXlateTopic())
-		.log(LoggingLevel.INFO,"Patient Data Received from activeMQ topic")
-		.unmarshal().json(JsonLibrary.Jackson,LinkedHashMap.class)
-		.log("Patient Data: ${body} ")
+		.log(LoggingLevel.INFO,"Patient Data Received from activeMQ topic-patientXlateTopic")
+		.unmarshal().json(JsonLibrary.Jackson)
+		.log("Patient Data: ${body}")
         .to(getDatabaseEquipmentFlagUpdateDirect());
 
 		//database Update route for changing Equipment Status

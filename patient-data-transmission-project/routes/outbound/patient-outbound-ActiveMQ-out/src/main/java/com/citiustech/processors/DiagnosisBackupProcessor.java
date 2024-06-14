@@ -11,9 +11,9 @@ public class DiagnosisBackupProcessor implements Processor{
 		LinkedHashMap<String, Object> PatientDemographic=(LinkedHashMap<String, Object>) exchange.getIn().getBody(LinkedHashMap.class).get("PatientDemographicDetails");
 		LinkedHashMap<String, Object> PatientTreatment =(LinkedHashMap<String, Object>) exchange.getIn().getBody(LinkedHashMap.class).get("PatientTreatmentDetails");
 		
-		LinkedHashMap<String,Object> newBody= new LinkedHashMap<>();
-		newBody.put("Patientid", PatientDemographic.get("PatientId"));
-		newBody.put("PatientDiagnosis", PatientTreatment.get("DiagnosisDetails"));
-		exchange.getIn().setBody(newBody, LinkedHashMap.class);	
+		LinkedHashMap<String,Object> PatientDiagnosisData= new LinkedHashMap<>();
+		PatientDiagnosisData.put("Patientid", PatientDemographic.get("PatientId"));
+		PatientDiagnosisData.put("PatientDiagnosis", PatientTreatment.get("diagnosisDetails"));
+		exchange.getIn().setBody(PatientDiagnosisData, LinkedHashMap.class);	
 	}
 }

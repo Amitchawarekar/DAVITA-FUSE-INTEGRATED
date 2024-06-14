@@ -66,7 +66,8 @@ public class GetPatientReportDetailsRoute extends RouteBuilder {
             .log("Http Request Failed : ${exception.message}")
             .maximumRedeliveries(3)
             .retryAttemptedLogLevel(LoggingLevel.WARN);
-
+        
+		// ActiveMQ connection Exception
         onException(ConnectionFailedException.class)
             .handled(true)
             .log("ActiveMQ Connection Failed : ${exception.message}")
@@ -78,49 +79,54 @@ public class GetPatientReportDetailsRoute extends RouteBuilder {
             .handled(true)
             .log("File Not Exist : ${exception.message}")
             .retryAttemptedLogLevel(LoggingLevel.WARN);
-
+        
+        
+        //Rest APi Connection Exception
         onException(ConnectException.class)
             .handled(true)
             .log("Rest Api Call Failed : ${exception.message}")
             .maximumRedeliveries(3)
             .redeliveryDelay(1000)
             .retryAttemptedLogLevel(LoggingLevel.WARN);
-
+        
+        //MySQL connection exception
         onException(SQLException.class)
             .handled(true)
             .log("SQL Exception occurred: ${exception.message}");
-
+        
+        //Default Error Handler
         onException(Exception.class)
             .handled(true)
             .log("Exception occurred: ${exception.message}");
 
         // Tokenizing and trimming the incoming patient IDs from the file 
-        from(getPatientIdsSourceUri()).routeId("PatientReportRoute")
-            .split(body().tokenize("\n"))
-            .setBody(simple("${body.trim()}"))
-            .choice()
-                .when(body().isEqualTo(""))
-                    .log("Empty Line in file")
-                .otherwise()
-                    .process(new Processor() {
-                        @Override
-                        public void process(Exchange exchange) throws Exception {
-                            String inputBody = exchange.getIn().getBody(String.class);
-                            exchange.getIn().setHeader("patientId", inputBody);
-                        }
-                    })
-                    .log(LoggingLevel.INFO, "Received patientId from the file - ${body}")
-                    .setHeader(Exchange.HTTP_METHOD, constant("GET"))
-                    .setHeader(Exchange.HTTP_PATH, simple("${header.patientId}"))
-                    // Requesting the REST API for the data
-                    .log(LoggingLevel.INFO, "Requesting: " + getHttpUri() + "${header.patientId}")
-                    .to(getHttpUri())
-                    .wireTap(getRestApiDataReceivedWireTapDirect())
-                    // Sending to ActiveMQ Server
-                    .to(getAmqQueue())
-                    .log(LoggingLevel.INFO, "Patient Data sent to ActiveMQ queue");
+        from(getPatientIdsSourceUri())
+        .routeId("PatientReportRoute")
+        .split(body().tokenize("\n"))
+        .setBody(simple("${body.trim()}"))
+        .choice()
+          .when(body().isEqualTo(""))
+          .log("Empty Line in file")
+        .otherwise()
+         	.process(new Processor() {
+                @Override
+                public void process(Exchange exchange) throws Exception {
+                	String inputBody = exchange.getIn().getBody(String.class);
+                   exchange.getIn().setHeader("patientId", inputBody);
+                }
+             })
+             .log(LoggingLevel.INFO, "Received patientId from the file - ${body}")
+        .setHeader(Exchange.HTTP_METHOD, constant("GET"))
+        .setHeader(Exchange.HTTP_PATH, simple("${header.patientId}"))
+        // Requesting the REST API for the data
+        .log(LoggingLevel.INFO, "Requesting: " + getHttpUri() + "${header.patientId}")
+        .to(getHttpUri())
+        .wireTap(getRestApiDataReceivedWireTapDirect())
+        // Sending to ActiveMQ Server
+        .to(getAmqQueue())
+        .log(LoggingLevel.INFO, "Patient Data sent to ActiveMQ queue-patientDetailsQueue");
 
         from(getRestApiDataReceivedWireTapDirect()) // Wiretap route
-            .log(LoggingLevel.INFO, "Patient Data received from rest API");
+            .log("Patient Data received from rest API");
     }
 }

@@ -15,7 +15,7 @@ public class PatientDataTransformProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		// TODO Auto-generated method stub
 		Patient patient = exchange.getIn().getBody(Patient.class);
-		exchange.getIn().setBody(patient);
+//		exchange.getIn().setBody(patient);
 		
 		PatientDemographicDetails patientDemographicDetails = new PatientDemographicDetails();
 		patientDemographicDetails.setPatientId(patient.getPatientId());

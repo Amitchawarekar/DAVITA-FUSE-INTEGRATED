@@ -52,12 +52,13 @@ public class PatientTransformationRoute extends RouteBuilder {
 		.log("Exception occurred: ${exception.message}");			
 		
 		from(getPatientDetailsQueue())
-		.log(LoggingLevel.INFO,"Patient Data received from ActiveMQ queue - ${body}")
+		.log(LoggingLevel.INFO,"Patient Data received from ActiveMQ queue(patientDetailsQueue) - ${body}")
 		.unmarshal().json(JsonLibrary.Jackson,Patient.class)
-		.log(LoggingLevel.INFO,"Patient Data is Transformed")
 		.process(new PatientDataTransformProcessor())
+		.log(LoggingLevel.INFO,"Patient Data is Transformed")
 		.marshal().json(JsonLibrary.Jackson)
+		.log("Transformed Data - ${body}")
 		.to(getPatientXlateTopic())
-		.log("${body}");
+		.log("Patient Data is sent to ActiveMQ topic-patientXlateTopic");
 	}
 }

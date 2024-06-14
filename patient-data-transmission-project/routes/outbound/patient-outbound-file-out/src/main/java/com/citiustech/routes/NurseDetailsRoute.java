@@ -64,11 +64,10 @@ public class NurseDetailsRoute extends RouteBuilder {
 		.log("Exception occurred: ${exception.message}");
 		
 		from(getPatientXlateTopic())
-		.log(LoggingLevel.INFO,"Patient Data received from activeMQ topic")
+		.log(LoggingLevel.INFO,"Patient Data received from activeMQ topic-patientXlateTopic")
 		.unmarshal().json(JsonLibrary.Jackson)
 		.log(LoggingLevel.INFO,"Patient Data - ${body} ")
         .to(getNurseStatusDetailsDirect());
-		
 		
 		//Nurse Detail To File Route
 		from(getNurseStatusDetailsDirect()).routeId("NurseRoute")
